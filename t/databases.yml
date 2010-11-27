@@ -1,0 +1,19 @@
+---
+databases:
+  tests:
+    username: 'testing'
+    password: ''
+    host:     'localhost'
+    driver:   'mysql'
+    domain:   'Production'
+    type:     'main' 
+
+testconf:
+  settings:
+    value: 3
+    test: 'four'
+    array:
+      - 'red'
+      - 'green'
+      - 'blue'
+
