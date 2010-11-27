@@ -39,3 +39,25 @@ foreach my $responsibility ( $emp_obj2->responsibilities )  {
     printf("%s\n", $responsibility->description);
 }
 #print Dumper($emp_obj);
+
+$emp_obj->responsibilities({ name => 'manager'});
+
+$emp_obj->save;
+#print Dumper($respon);
+
+print TestClasses::Employees->get_employees_count() . "\n";
+#print TestClasses::Employees->total() . "\n"; 
+#$emp_obj->save;
+
+
+my @responsibilities = TestClasses::Responsibilities->get_responsibilities();
+
+#print Dumper(@responsibilities);
+
+
+#my $del_emp = TestClasses::Employees->load(3);
+
+
+#print Dumper($del_emp);
+
+#$del_emp->delete(cascade => 1 );

@@ -6,6 +6,8 @@ use ADApps::GetConf;
 use Data::Dumper;
 use Rose::DB;
 
+#$Rose::DB::Debug = 1;
+
 sub db {
 
     my ($self, $database) = @_;
@@ -41,14 +43,15 @@ sub _get_db_obj {
 
     my $rose_db_obj = Rose::DB->new(
     
-        database => $db_conf->{'username'},
+        database => $db_conf->{'database'},
         username => $db_conf->{'username'},
         password => $db_conf->{'password'}, 
         host     => $db_conf->{'host'}, 
         driver   => $db_conf->{'driver'}, 
     );
-    
-    
+    #print Dumper($rose_db_obj);
+    #print $database;
+
     return $rose_db_obj;
 
 

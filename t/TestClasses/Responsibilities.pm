@@ -14,6 +14,8 @@ __PACKAGE__->meta->setup(
         name        => { type => 'varchar', length => 30 },
         description => { type => 'text' }
     ],
+    unique_key => 'name',
+
     relationships => [
         employees => {
             type      => 'many to many',

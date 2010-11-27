@@ -57,103 +57,103 @@ sub load_manager_methods {
     );
 }
 
-sub load_all {
-
-    my ($class, $args_ref) = @_; 
-    
-    return _manager_sub_classer(
-        $class, 
-        { 
-            method_p => 'get_',
-            args     => $args_ref
-        }
-    );  
-}
-
-sub get_iterator {
-
-    my ($class, $args_ref) = @_; 
-    
-    return _manager_sub_classer(
-        $class, 
-        { 
-            method_p => 'get_',
-            method_s => '_iterator',
-            args     => $args_ref
-        }
-    );  
-}
-
-
-sub get_count {
-    
-    my ($class, $args_ref) = @_;
-  
-    return _manager_sub_classer(
-        $class, 
-        { 
-            method_p => 'get_',
-            method_s => '_count',
-            args     => $args_ref
-        }
-    );
-}
-
-
-
-
-sub delete {
-
-    my ($class, $args_ref ) = @_; 
-
-    if ($class->id) {
-        $class->SUPER::delete();    
-    }
-    else {
-        return _manager_sub_classer(
-            $class, 
-            { 
-            method_p => 'delete_',
-            args     => $args_ref
-            }
-        );   
-
-    }
-
-}
-
-
-sub _manager_sub_classer {
-
-    my ( $class, $args ) = @_;
-    
-
-    $class =~ /(.*::)([^:]+)/; 
-    my $table = lc($2); 
-    my @args  = ();
-
-    my $method_p = $args->{'method_p'};
-    my $method_s = $args->{'method_s'}; 
-    @args     = @{$args->{'args'}}
-        if ($args->{'args'});
-    
-    my $method = sprintf('%s%s', $method_p, $table);
-
-    $method .= $method_s
-        if ($method_s);
-
-    my $return;
-
-    eval {
-        $return = $class->$method(@args);
-    }; 
-    if ($@) {
-        warn "ADApps::DataObject::Manager methods not loaded in $class"
-    }
-    else {
-        return $return;
-    }
-}
+#sub load_all {
+#
+#    my ($class, $args_ref) = @_; 
+#    
+#    return _manager_sub_classer(
+#        $class, 
+#        { 
+#            method_p => 'get_',
+#            args     => $args_ref
+#        }
+#    );  
+#}
+#
+#sub get_iterator {
+#
+#    my ($class, $args_ref) = @_; 
+#    
+#    return _manager_sub_classer(
+#        $class, 
+#        { 
+#            method_p => 'get_',
+#            method_s => '_iterator',
+#            args     => $args_ref
+#        }
+#    );  
+#}
+#
+#
+#sub get_count {
+#    
+#    my ($class, $args_ref) = @_;
+#  
+#    return _manager_sub_classer(
+#        $class, 
+#        { 
+#            method_p => 'get_',
+#            method_s => '_count',
+#            args     => $args_ref
+#        }
+#    );
+#}
+#
+#
+#
+#
+#sub delete {
+#
+#    my ($class, $args_ref ) = @_; 
+#
+#    if ($class->id) {
+#        $class->SUPER::delete();    
+#    }
+#    else {
+#        return _manager_sub_classer(
+#            $class, 
+#            { 
+#            method_p => 'delete_',
+#            args     => $args_ref
+#            }
+#        );   
+#
+#    }
+#
+#}
+#
+#
+#sub _manager_sub_classer {
+#
+#    my ( $class, $args ) = @_;
+#    
+#
+#    $class =~ /(.*::)([^:]+)/; 
+#    my $table = lc($2); 
+#    my @args  = ();
+#
+#    my $method_p = $args->{'method_p'};
+#    my $method_s = $args->{'method_s'}; 
+#    @args     = @{$args->{'args'}}
+#        if ($args->{'args'});
+#    
+#    my $method = sprintf('%s%s', $method_p, $table);
+#
+#    $method .= $method_s
+#        if ($method_s);
+#
+#    my $return;
+#
+#    eval {
+#        $return = $class->$method(@args);
+#    }; 
+#    if ($@) {
+#        warn "ADApps::DataObject::Manager methods not loaded in $class"
+#    }
+#    else {
+#        return $return;
+#    }
+#}
 
 
 
