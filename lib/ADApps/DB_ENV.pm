@@ -49,11 +49,14 @@ sub import {
             return;
          }
         _export_vars($type,$caller);
+            # set  variables.
+        _load_from_env($type);
+ 
     }
+
 }
 
 sub _export_vars {
-
 
         my ($type,$caller) = @_;
 
@@ -63,9 +66,6 @@ sub _export_vars {
         for (@{ $VARS{$type} }) {
             *{"${caller}::$_"} = \$$_;    
         }
-        
-        # set  variables.
-        _load_from_env($type);
 
         push(@EXPORTED, $type);
     
@@ -100,7 +100,12 @@ sub _load_from_env {
 sub verify_db_env {
 
     my ($class, $type )= @_ ;
-
+    
+    unless( $type )  {
+        carp "no type specified";
+        return ;
+    }  
+    
     unless ( grep { /^$type$/ } @EXPORTED  ) {
         carp "$type was not loaded";
         return 0;
@@ -114,7 +119,7 @@ sub verify_db_env {
 sub _test_dbh {
 
     my $type = shift;
- 
+
     my $user = $ENV{ uc($type) . '_TEST_USER' };
     my $pass = $ENV{ uc($type) . '_TEST_PASS' };
 
