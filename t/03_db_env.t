@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Test::MockObject;
 use DBI;
 
@@ -25,7 +25,7 @@ BEGIN {
     my $mock = Test::MockObject->new(); 
     $mock->fake_module( 'DBI',
         connect => sub {
-                    return ( $DBI_FAIL  )  ? 0 : 'DBI::db=HASH';
+                    return ( $DBI_FAIL )  ? 'fail' : 'DBI::db=HASH';
                    },
     );
     
@@ -57,12 +57,33 @@ is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verif
 #no warnings 'all';
 
 {
-    # Localizing $SIG{__WARN__} so we can easily trap warns/carps messages;
+    # Localizing $SIG{__WARN__} to die() 
+    # so we can easily trap warns/carps messages;
     local $SIG{'__WARN__'} = sub { die  $_[0] };
     
     eval { ADApps::DB_ENV->verify_db_env() };
     like( $@, '/no type specified.*/', 'undefined type check' );
+
+    eval { ADApps::DB_ENV->verify_db_env('mysqli') };
+    like( $@, '/mysqli was not loaded.*/', 'not loaded type check' ); 
+
+    local $ENV{'DB_ENV_DEBUG'} = 1; 
+    
+    {
+        local $ENV{'MYSQL_TEST_USER'} = 0;
+        local $ENV{'MYSQL_TEST_PASS'} = 0;
+
+        eval { ADApps::DB_ENV->verify_db_env('mysql') };
+        like( $@, '/no user and pass in ENV.*/', 'user/pass in env check' );  
+    }
+    
+    our $DBI_FAIL = 1;
+    eval { ADApps::DB_ENV->verify_db_env('mysql') }; 
+    like( $@, '/dbh creation failed.*/', 'dbh test failed' );   
+
 }
+
+
 
 
 

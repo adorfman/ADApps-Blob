@@ -152,7 +152,8 @@ sub _test_dbh {
 sub print_debug {
 
     my $err = shift;
-    print $err . "\n" if $ENV{'DB_ENV_DEBUG'} ;
+    carp $err if $ENV{'DB_ENV_DEBUG'} ; 
+    #print $err . "\n" if $ENV{'DB_ENV_DEBUG'} ;
 
 }
 
