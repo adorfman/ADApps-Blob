@@ -7,11 +7,12 @@ use Test::MockObject;
 use Data::Dumper;
 
 use lib qw( ./t ./lib ) ;
-use DB_ENV qw( mysql );;
+use ADApps::DB_ENV qw( mysql );;
 
 
 SKIP: {
-    skip 'cannot connect to db', 1 unless DB_ENV->verify_dbh('mysql');
+    skip 'cannot connect to db', 1 
+        unless ADApps::DB_ENV->verify_db_env('mysql');
 
     my $mock = Test::MockObject->new();
 

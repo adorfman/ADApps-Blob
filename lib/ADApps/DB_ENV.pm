@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 
-package DB_ENV;
+package ADApps::DB_ENV;
 use warnings;
 use strict;
 
