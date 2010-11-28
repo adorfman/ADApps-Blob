@@ -7,7 +7,7 @@ use Test::MockObject;
 use Data::Dumper;
 
 use lib qw( ./t ./lib ) ;
-use DB_ENV;
+use DB_ENV qw( mysql );;
 
 
 SKIP: {
@@ -16,11 +16,11 @@ SKIP: {
     my $mock = Test::MockObject->new();
 
     my $conf = {  
-        username => $mysql_user,
-        password => $mysql_pass,
-        host     => $mysql_host,
+        username => $MYSQL_USER,
+        password => $MYSQL_PASS,
+        host     => $MYSQL_HOST,
         driver   => 'mysql',
-        database => $mysql_db,
+        database => $MYSQL_DB,
     };
 
     $mock->fake_module(
@@ -32,7 +32,7 @@ SKIP: {
 
     print Dumper( ADApps::GetConf->load('something')  );
 
-    print "$mysql_host $mysql_port $mysql_dbh\n" ;
+    print "$MYSQL_HOST $MYSQL_PORT \n" ;
 
     is(1,1, 'truth test');
 
