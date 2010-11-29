@@ -10,8 +10,9 @@ use lib qw( ./lib  );
 
 BEGIN {
     my %ENV_VARS = (
-        MYSQL_TEST_USER => 'user',
-        MYSQL_TEST_PASS => 'pass',
+        ENV_MYSQL_USER => 'user',
+        ENV_MYSQL_PASS => 'pass',
+        ENV_MYSQL_DB   => 'testing'
     );    
 
     (   sub {
@@ -25,20 +26,16 @@ BEGIN {
     my $mock = Test::MockObject->new(); 
     $mock->fake_module( 'DBI',
         connect => sub {
-                    return ( $DBI_FAIL )  ? 'fail' : 'DBI::db=HASH';
+                       return ( $DBI_FAIL )  ? 'fail' : 'DBI::db=HASH';
                    },
     );
-    
-
 
 }
-
-our $WARN;
 
 my %EXPECTED = (
     MYSQL_USER => 'user',
     MYSQL_PASS => 'pass',
-    MYSQL_DB   => 'tests',
+    MYSQL_DB   => 'testing',
     MYSQL_HOST => 'localhost',
     MYSQL_PORT => '3306'
 
@@ -46,6 +43,7 @@ my %EXPECTED = (
 
 use_ok( 'ADApps::DB_ENV', qw( mysql ) );
 can_ok( 'ADApps::DB_ENV', qw(import verify_db_env)  );
+
 for ( keys %EXPECTED ) {
     no strict 'refs';
     is( defined ${$_}, 1,  "$_ exported");
@@ -53,8 +51,6 @@ for ( keys %EXPECTED ) {
 }
 
 is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verified' );
-
-#no warnings 'all';
 
 {
     # Localizing $SIG{__WARN__} to die() 
@@ -65,13 +61,13 @@ is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verif
     like( $@, '/no type specified.*/', 'undefined type check' );
 
     eval { ADApps::DB_ENV->verify_db_env('mysqli') };
-    like( $@, '/mysqli was not loaded.*/', 'not loaded type check' ); 
+    like( $@, '/mysqli type variables were not exported.*/', 'not loaded type check' ); 
 
-    local $ENV{'DB_ENV_DEBUG'} = 1; 
-    
+    local $DB_ENV::DEBUG = 1; 
+
     {
-        local $ENV{'MYSQL_TEST_USER'} = 0;
-        local $ENV{'MYSQL_TEST_PASS'} = 0;
+        local $ENV{'ENV_MYSQL_USER'} = 0;
+        local $ENV{'ENV_MYSQL_PASS'} = 0;
 
         eval { ADApps::DB_ENV->verify_db_env('mysql') };
         like( $@, '/no user and pass in ENV.*/', 'user/pass in env check' );  
