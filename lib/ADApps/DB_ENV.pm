@@ -10,6 +10,7 @@ use Carp;
 
 our $DEBUG = 0;
 my @EXPORTED;
+our %DBH;
 
 my @TYPES = qw( mysql );
 
@@ -107,34 +108,55 @@ sub verify_db_env {
     
     unless( $type )  {
         carp "no type specified";
-        return ;
+        return 0;
     }  
     
     unless ( grep { /^$type$/ } @EXPORTED  ) {
         carp "$type type variables were not exported";
         return 0;
-
     }
 
-    our $mysql_dbh  = _test_dbh( $type );
+    $DBH{$type} =  _test_dbh( $type );
+    
+    return $DBH{$type};
 
+}
+
+sub get_dbh {
+
+    my ( $class, $type ) = @_;
+
+    # if verify_db_env for this type has already been called we already have the dhb;
+    return $DBH{$type} if ( ( defined $DBH{$type} ) && ( $DBH{$type} =~ /DBI::db=HASH.*/ )  );
+
+    $DBH{$type} = $class->verify_db_env($type) ;
+
+    unless ( $DBH{$type} =~ /DBI::db=HASH.*/ )  {
+        return 0; 
+    }
+
+    return $DBH{$type};
 }
 
 sub _test_dbh {
 
     my $type = shift;
 
-    my $user = $ENV{ 'ENV_' .  uc($type) . '_USER' };
-    my $pass = $ENV{ 'ENV_' . uc($type) . '_PASS' };
+    my ($user,$pass,$host,$db,$port);
+
+    {
+        no strict 'refs';
+        $user = ${ uc($type) . '_USER' };
+        $pass = ${ uc($type) . '_PASS' }; 
+        $db   = ${ uc($type) . '_DB' }; 
+        $host = ${ uc($type) . '_HOST' }; 
+        $port = ${ uc($type) . '_PORT' }; 
+    }
 
     unless($user && $pass) {
         print_debug('no user and pass in ENV');
         return 0;
     }
-
-    my $db   = $ENV{ 'ENV_' . uc($type) . '_DB' };
-    my $host = $ENV{ 'ENV_' . uc($type) . '_HOST' };
-    my $port = $ENV{ 'ENV_' . uc($type) . '_PORT' };
 
     my $dns = "DBI:$type:$db:$host:port=$port";
 
@@ -192,9 +214,14 @@ appropriate variables into the calling class. It currently supports the followin
 
 =head1 METHODS:
 
- verify_db_env( import_type  ) : This module currently only has one public class method. This method will attempt to to use the appropriate DBI drive to make a connection to the database using the information in the variables in exported  
+ verify_db_env( import_type  ) : This method will attempt to to use the appropriate DBI drive 
+ to make a connection to the database using the information in the variables in exported  
 
- import : This called on 'use' and should not be called as a class method. When called it will export the appropriate variables into the calling package. It will then search for the appropriate environmental variables and load their values into the matching exported variables.
+ get_dbh( import type ) : Return a DBI dbh;
+
+ import : This called on 'use' and should not be called as a class method. When called it 
+ will export the appropriate variables into the calling package. It will then search for 
+ the appropriate environmental variables and load their values into the matching exported variables.
 
 =cut
 

@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::MockObject;
 use DBI;
 
@@ -42,7 +42,7 @@ my %EXPECTED = (
 );
 
 use_ok( 'ADApps::DB_ENV', qw( mysql ) );
-can_ok( 'ADApps::DB_ENV', qw(import verify_db_env)  );
+can_ok( 'ADApps::DB_ENV', qw(import verify_db_env get_dbh)  );
 
 for ( keys %EXPECTED ) {
     no strict 'refs';
@@ -51,6 +51,8 @@ for ( keys %EXPECTED ) {
 }
 
 is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verified' );
+
+is( ADApps::DB_ENV->get_dbh('mysql'), 'DBI::db=HASH', 'got dbh'  );
 
 {
     # Localizing $SIG{__WARN__} to die() 
@@ -65,9 +67,15 @@ is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verif
 
     local $DB_ENV::DEBUG = 1; 
 
+    # this is the dumbest hack to avoid a silly warning
+    eval($DB_ENV::DEBUG) ;
+
     {
-        local $ENV{'ENV_MYSQL_USER'} = 0;
-        local $ENV{'ENV_MYSQL_PASS'} = 0;
+        local $ADApps::DB_ENV::MYSQL_USER = 0;
+        local $ADApps::DB_ENV::MYSQL_PASS = 0;
+
+        # more dumb hackyness
+        eval($ADApps::DB_ENV::MYSQL_USER && $ADApps::DB_ENV::MYSQL_PASS);
 
         eval { ADApps::DB_ENV->verify_db_env('mysql') };
         like( $@, '/no user and pass in ENV.*/', 'user/pass in env check' );  
@@ -76,7 +84,13 @@ is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verif
     our $DBI_FAIL = 1;
     eval { ADApps::DB_ENV->verify_db_env('mysql') }; 
     like( $@, '/dbh creation failed.*/', 'dbh test failed' );   
+}
 
+{    
+    # for these tests we want to silient all warns and test just the return value
+    local $SIG{'__WARN__'} = sub {};
+
+    is( ADApps::DB_ENV->get_dbh('mysqli') , '0', 'got_dbh failed' ) ; 
 }
 
 
