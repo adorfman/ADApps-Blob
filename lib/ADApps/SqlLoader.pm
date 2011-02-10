@@ -3,7 +3,7 @@ package ADApps::SqlLoader;
 use warnings;
 use strict;
 use Env qw( PATH );
-use Carp;
+use Carp ;
 use IPC::Run3;
 use ADApps::DB;
 
@@ -34,6 +34,9 @@ sub new {
     $class->_param_check(@opts);
     my $self = {@opts}; 
 
+    croak 'No database provided'
+        unless ($self->{'database'});
+
     bless $self, $class;
 
     return $self;
@@ -55,7 +58,10 @@ sub _load_sql_file {
 
     my $cmd = $self->_create_cmd($file);
 
-    print $cmd . "\n";
+    my ($out, $err)  = $self->_run_cmd($cmd);
+
+    carp  $err if ($err);
+
 }
 
 sub _create_cmd {
@@ -79,9 +85,9 @@ sub _create_cmd {
 }
 
 
-sub run_command {
+sub _run_cmd {
 
-    my $cmd = shift;
+    my ($self, $cmd ) = @_;
 
     my $OLDPATH = $PATH;
 

@@ -27,6 +27,4 @@ my $DATABASE = 'tests';
 
 my $sql_loader = ADApps::SqlLoader->database($DATABASE);
 
-print Dumper $sql_loader;
-
-$sql_loader->load('./t/testschemas/testemployee.sql');
+$sql_loader->load('./t/TestSQL/drop_add_data.sql');
