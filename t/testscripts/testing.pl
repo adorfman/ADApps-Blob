@@ -3,7 +3,7 @@
 BEGIN {
 
     @LIBS = qw( lib/ t/ );
-    $ENV{'ADAPPS_CONF_LIB'} = qw( t/ ); 
+#    $ENV{'ADAPPS_CONF_LIB'} = qw( t/ ); 
 
 } ;
 

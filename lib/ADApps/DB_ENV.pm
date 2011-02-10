@@ -118,7 +118,7 @@ sub verify_db_env {
 
     $DBH{$type} =  _test_dbh( $type );
     
-    return $DBH{$type};
+    return 1;
 
 }
 
@@ -129,7 +129,7 @@ sub get_dbh {
     # if verify_db_env for this type has already been called we already have the dhb;
     return $DBH{$type} if ( ( defined $DBH{$type} ) && ( $DBH{$type} =~ /DBI::db=HASH.*/ )  );
 
-    $DBH{$type} = $class->verify_db_env($type) ;
+    $class->verify_db_env($type) ;
 
     unless ( $DBH{$type} =~ /DBI::db=HASH.*/ )  {
         return 0; 
@@ -215,7 +215,8 @@ appropriate variables into the calling class. It currently supports the followin
 =head1 METHODS:
 
  verify_db_env( import_type  ) : This method will attempt to to use the appropriate DBI drive 
- to make a connection to the database using the information in the variables in exported  
+ to make a connection to the database using the information in the variables in exported. Returns
+ true on succes, 0 when DBI->connect(...) fails. 
 
  get_dbh( import type ) : Return a DBI dbh;
 

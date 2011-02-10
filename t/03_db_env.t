@@ -50,7 +50,7 @@ for ( keys %EXPECTED ) {
     is( ${$_}, $EXPECTED{$_}, "$_ set to expected value" );
 }
 
-is( ADApps::DB_ENV->verify_db_env('mysql'), 'DBI::db=HASH', 'db connection verified' );
+is( ADApps::DB_ENV->verify_db_env('mysql'), '1', 'db connection verified' );
 
 is( ADApps::DB_ENV->get_dbh('mysql'), 'DBI::db=HASH', 'got dbh'  );
 

@@ -2,6 +2,7 @@ package ADApps::DB;
 
 use strict;
 use warnings;
+use Carp;
 use ADApps::GetConf;
 use Data::Dumper;
 use Rose::DB;
@@ -10,36 +11,51 @@ use Rose::DB;
 
 sub db {
 
-    my ($self, $database) = @_;
+    my ($class, $database) = @_;
 
-    my $db = _get_db_obj($database);
+    my $db = $class->_get_db_obj($database);
 
     return $db->dbh
-        or die $db->error;
+        or carp $db->error;
 
 }
 
 
 sub database {
 
-    my ($self, $database) = @_;
+    my ($class, $database) = @_;
 
-    return _get_db_obj($database);
+    return $class->_get_db_obj($database);
 
+}
+
+sub get_conf {
+
+    my $class  = $_;
+    
+    return  ADApps::GetConf->load('databases');
+
+}
+
+sub get_db_conf {
+
+    my ($class, $database) = @_;
+
+    my $conf_data = $class->get_conf();
+
+    my $db_conf = $conf_data
+                    ->{$database};
+    
+    croak "Can't find database connection: $database"
+        unless ($db_conf);
+     
 }
 
 sub _get_db_obj {
 
-    my $database = shift;
+    my ( $class,$database ) = @_;
 
-    my $CONF_DATA = ADApps::GetConf->load('databases');
-
-    my $db_conf = $CONF_DATA
-                    ->{'databases'}
-                    ->{$database};
-    
-    die "Invalid database connection"
-        unless ($db_conf);
+   my $db_conf = $class->get_db_conf($database);
 
     my $rose_db_obj = Rose::DB->new(
     
@@ -49,8 +65,6 @@ sub _get_db_obj {
         host     => $db_conf->{'host'}, 
         driver   => $db_conf->{'driver'}, 
     );
-    #print Dumper($rose_db_obj);
-    #print $database;
 
     return $rose_db_obj;
 

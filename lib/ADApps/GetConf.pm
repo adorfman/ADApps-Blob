@@ -3,11 +3,19 @@ package ADApps::GetConf;
 use strict;
 use warnings;
 use YAML;
+use Carp;
+use Cwd;
+use Data::Dumper;
 
-my @CONF_LIBS = qw(
+my $PWD = cwd ;#  system('pwd');;
+my $HOMEDIR = ( getpwuid $< )[ 7 ];
+my @CONF_LIBS_STATIC = qw(
     /etc/adapps/etc
     /opt/appaps/etc
 );
+
+my @CONF_LIBS;
+push(@CONF_LIBS, ( $PWD, $HOMEDIR, @CONF_LIBS_STATIC) );
 
 sub load {
 
@@ -29,7 +37,7 @@ sub _find_conf_file {
         $conf_file = $file_param->{'file'}
             if ( -f  $file_param->{'file'} );
 
-        die "Invaid config file"
+        croak "Config file not found: " . $file_param->{'file'}
             unless ($conf_file);
     }
     elsif ( $ENV{'ADAPPS_CONF_LIB'} ) {  
@@ -42,7 +50,7 @@ sub _find_conf_file {
         $conf_file = $file_loc
             if ( -f  $file_loc );
 
-        die "Invaid config file $file_loc"
+        croak "Config file not found: $file_loc"
             unless ($conf_file);  
 
     }
@@ -60,7 +68,7 @@ sub _find_conf_file {
             }
         }
          
-        die "Invaid config file $file_param"
+        croak "Config file not found: ${file_param}.yml"
             unless ($conf_file);  
 
     } 

@@ -2,39 +2,19 @@
 
 use warnings;
 use strict;
+use lib qw( ./t ./lib ) ;
 use Test::More tests => 1; 
+use ADApps::DB;
 use Test::MockObject;
 use Data::Dumper;
 
-use lib qw( ./t ./lib ) ;
-use ADApps::DB_ENV qw( mysql );;
-
-
-SKIP: {
-    skip 'cannot connect to db', 1 
-        unless ADApps::DB_ENV->verify_db_env('mysql');
-
     my $mock = Test::MockObject->new();
 
-    my $conf = {  
-        username => $MYSQL_USER,
-        password => $MYSQL_PASS,
-        host     => $MYSQL_HOST,
-        driver   => 'mysql',
-        database => $MYSQL_DB,
-    };
-
     $mock->fake_module(
-        'ADApps::GetConf',
-        load => sub { $conf  }
-    
+        'ADApps::DB',
+        database => sub { return ADApps::DB->_get_db_obj('tests') }
     );
-    use ADApps::GetConf;
 
-    print Dumper( ADApps::GetConf->load('something')  );
-
-    print "$MYSQL_HOST $MYSQL_PORT \n" ;
 
     is(1,1, 'truth test');
 
-};

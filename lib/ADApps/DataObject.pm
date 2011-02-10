@@ -3,6 +3,7 @@ package ADApps::DataObject;
 #use lib $ENV{'ADAPPS_LIB'};
 use strict;
 use warnings;
+use Carp;
 use ADApps::DB;
 use ADApps::DataObject::Manager;
 use base qw(Rose::DB::Object);
@@ -41,14 +42,14 @@ sub load_manager_methods {
             %args = @_;
         }
         else {
-            die "Odd number of paramets";
+            croak "Odd number of paramets";
         }
     }
 
-    $class =~ /(.*::)([^:]+)/;
-    my $table = 
-        $args{'table'}
-        ? $args{'table'}
+    $class =~ /(.*::)([^:]+)/; # if undefined the table will be
+    my $table =                # the far right name of the calling
+        $args{'table'}         # class.  Class: MTRides::M::Colors;
+        ? $args{'table'}       # Table: colors;
         : lc($2);
 
     ADApps::DataObject::Manager->make_manager_methods(
@@ -187,6 +188,7 @@ sub load {
             return $obj;
         }
         else {
+            carp $@;
             return 0;
         }
     }
@@ -197,7 +199,7 @@ sub load {
             return $obj;
         }
         else {
-            warn $@;
+            carp $@;
             return 0;
 
         } 
