@@ -48,7 +48,10 @@ sub load {
 
     my ( $self, $file ) = @_;
 
-    $self->_load_sql_file($file);
+    croak "File not found: $file"
+        unless ( -f $file );
+
+    return $self->_load_sql_file($file);
 
 }
 
@@ -60,7 +63,9 @@ sub _load_sql_file {
 
     my ($out, $err)  = $self->_run_cmd($cmd);
 
-    carp  $err if ($err);
+    carp $err if ($err);
+
+    return 1;
 
 }
 
