@@ -6,6 +6,7 @@ use YAML;
 use Carp;
 use Cwd;
 use Data::Dumper;
+use Memoize;
 
 my $PWD = cwd ;#  system('pwd');;
 my $HOMEDIR = ( getpwuid $< )[ 7 ];
@@ -14,10 +15,18 @@ my @CONF_LIBS_STATIC = qw(
     /opt/appaps/etc
 );
 
+our $NOCACHE ;
 my @CONF_LIBS;
 push(@CONF_LIBS, ( $PWD, $HOMEDIR, @CONF_LIBS_STATIC) );
 
+
+memoize('load') unless ( $NOCACHE );
+
 sub load {
+    return _load(@_);
+}
+
+sub _load {
 
     my ($self, $file_param ) = @_;
 
@@ -27,6 +36,11 @@ sub load {
 
 }
 
+# never memoized 
+sub load_nocache {
+    return _load(@_)
+}
+ 
 sub _find_conf_file {
 
     my $conf_file;

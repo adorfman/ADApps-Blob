@@ -1,9 +1,7 @@
 use Test::More tests => 4;
 
 BEGIN {
-
     @LIBS = qw( lib/ t/ );
-
 };
 
 use lib @LIBS;
@@ -18,7 +16,8 @@ my @EXPECTED_TABLES = (
   'desks',
   'employees',
   'employees_responsibilities',
-  'responsibilities' );
+  'responsibilities' 
+);
 
 
 my $DB;
@@ -43,18 +42,15 @@ my $sql_loader = ADApps::SqlLoader->database($DATABASE);
 
 isa_ok($sql_loader, 'ADApps::SqlLoader');
     
-
-
-eval{
-    $sql_loader->load('./t/TestSQL/drop_add_data.sql'); 
-};
-
-is($@,'','no error on load');
-
-
 SKIP: {
     
-    skip "Failed getting dbh", 1 if $DB_ERR;
+    skip "Failed getting dbh", 3 if $DB_ERR;
+
+    eval{
+        $sql_loader->load('./t/TestSQL/drop_add_data.sql'); 
+    };
+
+    is($@,'','no error on load');
 
     my $sth = $dbh->prepare('SHOW TABLES');
     $sth->execute();
@@ -67,10 +63,12 @@ SKIP: {
 
     is_deeply( \@GOT_TABLES, \@EXPECTED_TABLES, 'Found all tables');
 
+
+    eval{
+        $sql_loader->load('./t/TestSQL/notfound.sql'); 
+    };
+
+    like($@, qr/File not found/, 'File not found'); 
+
+
 }
-
-eval{
-    $sql_loader->load('./t/TestSQL/notfound.sql'); 
-};
-
-like($@, qr/File not found/, 'File not found'); 

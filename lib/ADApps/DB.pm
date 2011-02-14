@@ -9,16 +9,17 @@ use Rose::DB;
 
 #$Rose::DB::Debug = 1;
 
-sub db {
+# Looks like this doesn't work
+#sub db {
+#
+#    my ($class, $database) = @_;
+#
+#    my $db = $class->_get_db_obj($database);
+#
+#    return $db->dbh
+#        or carp $db->error;
 
-    my ($class, $database) = @_;
-
-    my $db = $class->_get_db_obj($database);
-
-    return $db->dbh
-        or carp $db->error;
-
-}
+#}
 
 
 sub database {
@@ -33,7 +34,12 @@ sub get_conf {
 
     my $class  = $_;
     
-    return  ADApps::GetConf->load('databases');
+    my $conf_file =  ADApps::GetConf->load('databases');
+
+    carp "Could not locate databases.yml file"
+        unless ($conf_file);
+
+    return $conf_file;
 
 }
 
@@ -46,9 +52,11 @@ sub get_db_conf {
     my $db_conf = $conf_data
                     ->{$database};
     
-    croak "Can't find database connection: $database"
+    carp "Can't find database connection: $database"
         unless ($db_conf);
-     
+
+    return $db_conf;
+
 }
 
 sub _get_db_obj {
@@ -64,10 +72,9 @@ sub _get_db_obj {
         password => $db_conf->{'password'}, 
         host     => $db_conf->{'host'}, 
         driver   => $db_conf->{'driver'}, 
-    );
+    ) or carp Rose::DB->error;
 
     return $rose_db_obj;
-
 
 }
 

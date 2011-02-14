@@ -1,7 +1,12 @@
 #!/user/bin/perl -T 
-use Test::More tests => 6; 
+use Test::More tests => 8; 
 
-
+BEGIN {
+    $ADApps::GetConf::NOCACHE = 0;
+}
+ 
+use strict;
+use warnings;
 use lib qw(./lib);
 use ADApps::GetConf;
 use Data::Dumper;
@@ -52,6 +57,7 @@ is_deeply($conf, $expected_conf, 'Conf from file path matches');
 
 my $conf2;
 
+
 eval {
     $conf2 = ADApps::GetConf->load('databases');
 };
@@ -70,7 +76,7 @@ eval {
     );
 }; 
 
-ok( $@ =~ /Invaid config file/, 'Conf not found from path' );
+ok( $@ =~ /Config file not found/, 'Conf not found from path' );
 
 # Test for correct error message when invalid ADAPPS_CONF_LIB is set;
 
@@ -81,10 +87,17 @@ eval {
     $conf4 = ADApps::GetConf->load( 'notfound'  );
 }; 
 
-ok( $@ =~ /Invaid config file/, 'Conf not found in ADAPPS_CONF_LIB' ); 
+ok( $@ =~ /Config file not found/, 'Conf not found in ADAPPS_CONF_LIB' ); 
 
+my $not_cached = ADApps::GetConf->load_nocache('databases') ;
+my $not_cached_b = ADApps::GetConf->load_nocache('databases') ;
 
+ok($not_cached ne $not_cached_b, 'no caching');
 
+my $cached = ADApps::GetConf->load('databases') ;
+my $cached_b = ADApps::GetConf->load('databases') ;
 
+ok($cached eq $cached_b, 'caching');
+ 
 __DATA__
 #print Dumper($yaml);

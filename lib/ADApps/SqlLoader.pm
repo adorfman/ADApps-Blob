@@ -16,7 +16,7 @@ sub database {
 
     my $conf = ADApps::DB->get_db_conf($database);
 
-    my $sql_loader = $class->new(
+    my $sql_loader = $class->_new(
         database => $database,
         host     => $conf->{'host'},
         username => $conf->{'username'},
@@ -27,7 +27,7 @@ sub database {
 
 }
 
-sub new {
+sub _new {
 
     my ($class, @opts) = @_;
     #croak on odd number of params
@@ -96,7 +96,7 @@ sub _run_cmd {
 
     my $OLDPATH = $PATH;
 
-    $PATH='/usr/local/bin:/usr/bin:/bin';
+    $PATH = '/usr/local/bin:/usr/bin:/bin';
  
     my ($stout, $sterr);
 
